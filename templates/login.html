@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/c6c94691c1.js" crossorigin="anonymous"></script>
+    <title>OnTheClock Log In</title>
+    <link rel="stylesheet" href="static\css\login.css"> 
+</head>
+<body>
+    <div class='container'>
+        <div class='forms-container'>
+            <div class='signin-signup'>
+                <form id="login-form">
+                    <div class='title'>
+                        <span class="ontheclock">OnTheClock</span><br>
+                        LOG IN<br>
+                        <span class="create-link">
+                            Don't have an account? <a href="/">Create here</a>
+                        </span>
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="text" name="f_email" id="f_email" placeholder="Fatima Email Address" required autocomplete="off">
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" name="f_pwd" id="f_pwd" placeholder="Password" required autocomplete="off">
+                    </div>
+                    <input type="submit" value="LOGIN" class="btn solid">
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loading-spinner">Loading...</div>
+                    </div>
+                    <div id="message"></div> <!-- Display login message -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("login-form").addEventListener("submit", function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                const formData = new FormData(this);
+
+                // Send form data to Flask route
+                fetch('/login', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display response message
+                    document.getElementById("message").innerText = data.message;
+
+                    // If login successful, redirect to /sectionboard
+                    if (data.status === "success") {
+                        // Get the email from the form input field
+                        const f_email = document.getElementById("f_email").value;
+                        // Redirect to sectionboard with email as parameter
+                        window.location.href = `/sectionboard?f_email=${encodeURIComponent(f_email)}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            document.getElementById('loadingOverlay').style.display = 'block'; // Show loading screen
+        });
+    </script>
+</body>
+</html>

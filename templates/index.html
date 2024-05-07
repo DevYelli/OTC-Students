@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/c6c94691c1.js" crossorigin="anonymous"></script>
+    <title>OnTheClock Register Form</title>
+    <link rel="stylesheet" href="static\css\index.css"> 
+
+    <!-- JavaScript for email validation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var passwordInput = document.getElementById('f_pwd');
+            var confirmPasswordInput = document.getElementById('confirm_pwd');
+            var passwordMatchError = document.getElementById('password-match-error');
+        
+            confirmPasswordInput.addEventListener('input', function() {
+                if (confirmPasswordInput.value !== passwordInput.value) {
+                    passwordMatchError.style.display = 'block';
+                } else {
+                    passwordMatchError.style.display = 'none';
+                }
+            });
+        
+            document.getElementById('signup-form').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+        
+                // Check if passwords match
+                if (passwordInput.value !== confirmPasswordInput.value) {
+                    passwordMatchError.style.display = 'block';
+                    return; // Exit function without submitting the form
+                }
+        
+                var form = this;
+                var formData = new FormData(form);
+        
+                // Show loading indicator
+                document.getElementById('loading-overlay').style.display = 'block';
+        
+                fetch('/register', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Show the success popup
+                        var popup = document.querySelector('.popup');
+                        popup.classList.add('show');
+        
+                        // Reset the form
+                        form.reset();
+                    } else {
+                        // Show the error popup
+                        var errorPopup = document.querySelector('.error');
+                        errorPopup.classList.add('show');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                })
+                .finally(() => {
+                    // Hide loading indicator once the submission process is completed
+                    document.getElementById('loading-overlay').style.display = 'none';
+                });
+            });
+        });        
+        function closePopup() {
+            var popup = document.querySelector('.popup');
+            popup.classList.remove('show');
+            
+            var errorPopup = document.querySelector('.error');
+            errorPopup.classList.remove('show');
+        }
+    </script>
+</head>
+<body>
+    <div class='container'>
+        <div class='forms-container'>
+            <div class='signin-signup'>
+                <form action="/register" class="sign-in-form" id="signup-form" method="POST">
+                    <div class='title'>
+                        <span class="ontheclock">OnTheClock</span><br>
+                        Register
+                        <p>Be careful! Once you submit it, you won't be able to make any changes.</p>
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-id-badge"></i>
+                        <input type="text" name="f_id" pattern="[0-9\-]*" placeholder="Student Number" required autocomplete="off">
+                    </div>
+                    <div class='input-field'>
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="l_name" pattern="[A-Za-z\s]+" placeholder="Last Name" oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '').toUpperCase()" required autocomplete="off">
+                    </div>
+                    <div class='input-field'>
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="f_name" pattern="[A-Za-z\s]+" placeholder="First Name"  oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '').toUpperCase()" required autocomplete="off">
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" name="f_email" id="f_email" placeholder="Fatima Email Address" required autocomplete="off" pattern=".*@student\.fatima\.edu\.ph$">
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" name="f_pwd" id="f_pwd" placeholder="Password" required autocomplete="off">
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" id="confirm_pwd" placeholder="Confirm Password" required autocomplete="off">
+                        <span id="password-match-error" style="color: red; display: none;">Passwords do not match.</span>
+                    </div>
+                    <div class='input-field'>
+                        <i class="fa-solid fa-address-book"></i>
+                        <input type="text" name="f_phone" pattern="(\+63|0)9\d{9}" placeholder="Contact Number" required autocomplete="off">
+                    </div>
+                    <div class="gender-selection">
+                        <label>
+                            <input type="radio" name="f_gender" value="Female" required> Female
+                        </label>
+                        <label>
+                            <input type="radio" name="f_gender" value="Male" required> Male
+                        </label>
+                    </div>
+                    <span class="log-in">
+                        Already have an account? <a href="/login">Log in here</a>
+                    </span>
+                    <input type="submit" value="Register" class="btn solid" >
+                    <div class='popup' id='popup'>
+                        <h2>Registered</h2>
+                        <p>Your details has been successfully submitted!</p>
+                        <button type= "button" onclick="closePopup()"> Accept </button>
+                    </div>
+                    <div class='error' id='error'>
+                        <h2>Error!</h2>
+                        <p>There appears to be an issue with the inputs provided. Please try again.</p>
+                        <button type= "button" onclick="closePopup()"> OK </button>
+                    </div>
+                    <div id="loading-overlay">
+                        <div class="loading-spinner"></div>
+                    </div>                    
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

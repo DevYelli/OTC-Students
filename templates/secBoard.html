@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OnTheClock Section Board</title>
+    <script src="https://kit.fontawesome.com/c6c94691c1.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="static/css/secBoard.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Function to extract email from the URL and display it
+            function displayEmail() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const email = urlParams.get('f_email');
+                console.log("Email:", email); // Add console log here
+                if (email) {
+                    document.getElementById('userGreeting').textContent = "Hello, " + email;
+                }
+            }
+            // Call the function on page load
+            displayEmail();
+            
+            // Function to fetch user details from Flask endpoint
+            function fetchUserDetails(email) {
+                fetch(`/user-details/${email}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            console.log("User Details:", data.user_details);
+                            // Extract and print the key under the 'details' node
+                            const userDetailsKey = Object.keys(data.user_details)[0];
+                            console.log("Key under details node:", userDetailsKey);
+                            // You can update the HTML content with the user details if needed
+                        } else {
+                            console.error("Error fetching user details:", data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+    
+            
+            // Call the function to fetch user details when the page loads
+            const urlParams = new URLSearchParams(window.location.search);
+            const email = urlParams.get('f_email');
+            if (email) {
+                fetchUserDetails(email);
+            }
+        
+            function printFinalInput() {
+                const buttons = document.querySelectorAll('.submit-btn');
+                buttons.forEach(button => {
+                    button.addEventListener('click', async function() { // Make the function asynchronous
+                        const inputs = button.closest('.box').querySelectorAll('input[name="code"]');
+                        const section = button.closest('.box').querySelector('h3').textContent;
+                        const updatedSubjects = []; // Initialize updated subjects array
+                        for (const input of inputs) {
+                            const subject = input.closest('li').querySelector('span').textContent;
+                            const userCode = input.value.trim();
+                            try {
+                                const response = await fetch(`/check_code?section=${section}&subject=${subject}&code=${userCode}`);
+                                const data = await response.json();
+                                if (data.matched) {
+                                    console.log(`User input for ${subject} in ${section} matches the stored code.`);
+                                    // If code matches, add subject to updatedSubjects array
+                                    updatedSubjects.push(subject);
+                                } else {
+                                    console.log(`User input for ${subject} in ${section} does not match the stored code.`);
+                                }
+                            } catch (error) {
+                                console.error('Error:', error);
+                            }
+                        }
+                        // Once all fetch calls are completed, update user details
+                        updateDetails(email, updatedSubjects, section); // Pass updated subjects and section
+                        document.getElementById('message').textContent = `Enrollment attempted for ${section}.`;
+                    });
+                });
+            }
+                    
+            function updateDetails(email, updatedSubjects, updatedSection) {
+                // Fetch existing user details first
+                fetch(`/user-details/${email}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            const userDetails = data.details || {}; // Get existing user details or initialize as empty object
+                            userDetails.section = updatedSection;
+            
+                            // If subjects already exist, concatenate new subjects
+                            if (userDetails.subjects) {
+                                userDetails.subjects = [...new Set([...userDetails.subjects, ...updatedSubjects])];
+                            } else {
+                                userDetails.subjects = updatedSubjects;
+                            }
+            
+                            console.log("Fetched existing user details:");
+                            console.log("Existing Details:", userDetails);
+            
+                            // Send updated details to the server
+                            fetch(`/update-details/${email}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ details: userDetails }), // Nest details under 'details' key
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === "success") {
+                                    document.getElementById('message').textContent = "User details updated successfully."; // Display success message
+                                    clearInputs(); 
+                                    console.log("User details updated successfully.");
+                                } else {
+                                    console.error("Error updating user details:", data.message);
+                                    document.getElementById('message').textContent = "Error updating user details.";
+                                }
+                            })
+                            .catch(error => console.error('Error:', error));
+                        } else {
+                            console.error("Error fetching user details:", data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }            
+                         
+    
+            // Function to clear content of other input boxes except the focused one
+            function clearOtherInputs(inputs, currentInput) {
+                inputs.forEach(input => {
+                    if (input !== currentInput) {
+                        input.value = "";
+                    }
+                });
+            }
+            function clearInputs() {
+                const inputs = document.querySelectorAll('input[name="code"]');
+                inputs.forEach(input => {
+                    input.value = ""; // Clear input value
+                });
+            }
+        
+            // Function to print the final input for each subject after clicking the button
+            function printInput() {
+                const buttons = document.querySelectorAll('.submit-btn');
+                buttons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const inputs = button.closest('.box').querySelectorAll('input[name="code"]');
+                        const section = button.closest('.box').querySelector('h3').textContent;
+                        inputs.forEach(input => {
+                            const subject = input.closest('li').querySelector('span').textContent;
+                            console.log("Final Input for", subject, "in", section, ":", input.value);
+                        });
+                    });
+                });
+            }
+        
+            // Call the function to print input, subject, and section in console
+            printInput();
+        
+            // Call the function to print the final input for each subject after clicking the button
+            printFinalInput();
+            
+            // Call the function to clear other input boxes when one input box is clicked
+            const allInputs = document.querySelectorAll('input[name="code"]');
+            allInputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    clearOtherInputs(allInputs, input);
+                });
+            });
+        });
+    </script>
+    
+</head>
+<body>
+<header>
+    <div class="logo"><h3>OnTheClock</h3></div>
+    <div class="search-box">
+        <form action='/check_code', methods= 'GET'>
+            <input type="text" name="search" id="srch" placeholder="Search here...">
+            <button type="submit"><i class="fas fa-search"></i></button>
+        </form>
+    </div>
+    <ul>
+        <li><a href="#">HOME</a></li>
+        <li><a href="/login">LOGOUT</a></li>
+    </ul>
+</header>
+<h1 class="user" id="userGreeting"></h1> <div id="message"></div>
+<h1 class="heading">COLLEGE OF COMPUTER STUDIES SECTIONS</h1>
+<div class="box-container" id="boxContainer">
+    {% for section_info in section_data %}
+        <div class="box">
+            <h3>{{ section_info.section_name }}</h3>
+            <ul>
+                {% for day, subjects in section_info.weekdays.items() %}
+                    {% for subject in subjects %}
+                        <li>
+                            <span>{{ subject }}</span>
+                            <input type="text" name="code" placeholder="Enter the {{ subject }} code">
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+            <button type="submit" class="submit-btn">ENROLL</button>
+        </div>
+    {% endfor %}
+</div>
+</body>
+</html>

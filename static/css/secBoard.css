@@ -1,0 +1,184 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+    list-style: none;
+    text-decoration: none;
+}
+
+@font-face {
+    font-family: 'Hit and Run';
+    src: url('Hit and Run.otf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    margin: 50px;
+    padding-top: 100px; /* Adjust padding top to match the height of the header */
+    font-family: "Poppins", sans-serif;
+}
+
+header {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999; /* Ensure header is above other elements */
+    padding: 20px 0;
+    background-color: white;
+}
+
+header .logo h3{
+    flex: 1;
+    color: #4A448F;
+    margin-left: 50px;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-size: 2rem;
+    cursor: default;
+}
+
+
+.logo h3:hover{
+    color: #FE60A4;
+}
+
+header .search-box{
+    flex: 1;
+    position: relative;
+    margin-left: 20px;
+}
+
+.search-box input{
+    width: 100%;
+    height: 40px;
+    border: none;
+    outline: none;
+    background: #f2f2f2;
+    border-radius: 30px;
+    font-size: 16px;
+    text-align: left;
+    padding-left: 20px;
+}
+
+.search-box button{
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 30px;
+    border: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: scale(.9);
+    background-color: #4A448F;
+    color: white;
+    font-size: 15px;
+}
+
+header ul{
+    display: flex;
+    justify-content: right;
+    margin-right: 20px;
+}
+
+header ul li a{
+    color: #4A448F;
+    font-size: 20px;
+    padding: 15px 15px;
+    font-weight: bold;
+}
+
+header ul li a:hover{
+    color: #FE60A4;
+}
+
+.box-header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+.box-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust the minimum and maximum width of the grid items */
+    gap: 20px; 
+    color: #4A448F;
+}
+
+.box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent; 
+    padding: 20px; 
+    border-radius: 5px; 
+    border: 2px solid #4A448F; 
+}
+
+.box:hover{
+    border-color: #FE60A4;
+}
+
+.box h2{
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-weight: bold;
+}
+
+
+.box li {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  
+  .box li input[type="text"] {
+    width: 200px; /* Adjust the input width */
+    margin-left: 10px;
+    padding: 5px;
+  }
+
+.heading{
+    text-align: center;
+    margin-bottom: 50px;
+    color: #FE60A4;
+    font-family: 'Hit and Run';
+    letter-spacing: 2px;
+}
+
+.submit-btn {
+    background-color: #4A448F;
+    color: white;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+
+
+/* Hover effect for submit button */
+.submit-btn:hover {
+    background-color: #FE60A4 ;
+}
+
+@media (max-width: 870px) {
+    .search-box button{
+        position: absolute;
+    }
+}
